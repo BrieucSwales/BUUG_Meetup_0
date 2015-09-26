@@ -12,6 +12,7 @@ public class Crowd : MonoBehaviour {
     public bool draw_bounding_spheres;
 
     public Agent agent_prefab;
+    public GameObject character_prefab;
     public int max_agents = 1000;
 
     public Bounds bounds;
@@ -25,6 +26,7 @@ public class Crowd : MonoBehaviour {
     
 	void Awake () {
         agent_prefab.CreatePool( max_agents );
+        character_prefab.CreatePool( max_agents );
         culling_group = new CullingGroup();
 	}
 
@@ -37,8 +39,6 @@ public class Crowd : MonoBehaviour {
             Agent agent = agent_prefab.Spawn( new_pos );
             agent.navmesh_agent.obstacleAvoidanceType = ObstacleAvoidanceType.LowQualityObstacleAvoidance;
             agent.navmesh_agent.avoidancePriority = 80;        
-            agent.character.SetActive( false );       
-            //agent.transform.SetParent( transform );
             agents.Add( agent );            
         }
     }
@@ -64,8 +64,10 @@ public class Crowd : MonoBehaviour {
 	}
 
     void Update () {
-        for ( int i = 0; i < agents.Count; ++i ) {
+        int i = 0, count = agents.Count;
+        for ( i = 0; i < count; ++i ) {
             curr_agent = agents[i];
+            
             // Update bouding spheres
             bounding_spheres[i].position = curr_agent.transform.position;
             // AI
@@ -75,7 +77,7 @@ public class Crowd : MonoBehaviour {
                 }        
             }
             // Other
-            if ( curr_agent.in_view ) {
+            if ( curr_agent.in_view && curr_agent.animator ) {
                 curr_agent.animator.SetFloat( forward_hash,
                                          curr_agent.navmesh_agent.velocity.magnitude,
                                          0.1f,
@@ -90,12 +92,15 @@ public class Crowd : MonoBehaviour {
             agent.in_view = true;
             agent.navmesh_agent.obstacleAvoidanceType = ObstacleAvoidanceType.GoodQualityObstacleAvoidance;
             agent.navmesh_agent.avoidancePriority = 50;
-            agent.character.SetActive( true );
+            agent.character = character_prefab.Spawn();
+            agent.character.transform.SetParent( agent.transform, false );
+            agent.character.transform.localPosition = Vector3.zero;
+            agent.animator = agent.character.GetComponent<Animator>();
         } else if ( evt.hasBecomeInvisible ) {
             agent.in_view = false;
             agent.navmesh_agent.obstacleAvoidanceType = ObstacleAvoidanceType.LowQualityObstacleAvoidance;
             agent.navmesh_agent.avoidancePriority = 80;
-            agent.character.SetActive( false );
+            agent.character.Recycle();
         }
     }
     
