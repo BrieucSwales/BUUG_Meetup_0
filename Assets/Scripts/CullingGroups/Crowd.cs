@@ -13,7 +13,7 @@ public class Crowd : MonoBehaviour {
 
     public Agent agent_prefab;
     public GameObject character_prefab;
-    public int max_agents = 1000;
+    public int max_agents = 1000, character_pool_size = 300;
 
     public Bounds bounds;
     public List<Agent> agents = new List<Agent>();
@@ -26,7 +26,7 @@ public class Crowd : MonoBehaviour {
     
 	void Awake () {
         agent_prefab.CreatePool( max_agents );
-        character_prefab.CreatePool( max_agents );
+        character_prefab.CreatePool( character_pool_size );
         culling_group = new CullingGroup();
 	}
 
