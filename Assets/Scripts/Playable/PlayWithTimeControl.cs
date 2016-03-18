@@ -7,7 +7,7 @@ public class PlayWithTimeControl : MonoBehaviour {
     public AnimationClip clip; 
     Playable root;
     const float speed_factor = 0.1f;
-    float horizontal_input;
+    public float horizontal_input;
  
     void Start () {
         root = new AnimationClipPlayable( clip );
@@ -20,7 +20,11 @@ public class PlayWithTimeControl : MonoBehaviour {
  
     void Update () {
         // Control the time manually based on the input
-        horizontal_input = Input.GetAxis("Horizontal");
+        //horizontal_input = Input.GetAxis("Horizontal");
         root.time += horizontal_input * speed_factor;
+    }
+
+    public void SetTime ( float value ) {
+        horizontal_input = Mathf.Clamp( value, -1f, 1f );
     }
 }
